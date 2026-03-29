@@ -82,14 +82,14 @@ sudo apt install ros-humble-dynamixel-sdk ros-humble-xacro libudev-dev
 sudo apt install ros-humble-turtlebot3-bringup ros-humble-teleop-twist-keyboard ros-humble-turtlebot3-msgs
 ```
 
-## Configure USB Settings for OpenCR
+### Configure USB Settings for OpenCR
 ```
 sudo cp `ros2 pkg prefix turtlebot3_bringup`/share/turtlebot3_bringup/script/99-turtlebot3-cdc.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
-## Final System Configuration
+### Final System Configuration
 1. Set up the OpenCR board
 ```
 sudo dpkg --add-architecture armhf  
@@ -113,5 +113,12 @@ cd ./opencr_update
 ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
 ```
 
-Run Teleop
-ros2 launch turtlebot3_bringup robot.launch.py
+### Switching Between Wirless Networks
+1. Check which networks are avialable (saved in your netplan)
+```
+sudo wpa_cli -i wlan0 list_networks
+```
+2. Switch to a different network.
+```
+sudo wpa_cli -i wlan0 select_network 0
+```

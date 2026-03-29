@@ -33,33 +33,20 @@ sudo ./imager_2.0.7_amd64.AppImage
 6. Customize as desired, but make sure the enable SSH under “Remote access”
 7. Write the image. 
 
-### Setting Up Remote SSH
+### Configure RPi Settings
 1. Insert the flashed SD card into the Pi.
 2. Connect a monitor and keyboard BEFORE connecting the RPi to power.
-3. After logging in, check the wlan0 MAC address using the command `ip a`.
-4. Go to networks.utexas.edu and register the Pi’s MAC address under “Wireless”. 
-5. Add the new network SSID and password to the RPi’s netplan.
-```
-sudo nano /etc/netplan/50-cloud-init.yaml
-```
-7. Reboot.
-8. Connect your laptop to `utexas` or `utexas-iot` Wi-Fi. Then SSH into the turtlebot.
-```
-ssh MACADDRESS.dynamic.utexas.edu
-```
-
-### Configure RPi Settings
-1. Change the auto upgrade settings from `1` to `0`.
+3. Change the auto upgrade settings from `1` to `0`.
 ```
 sudo nano /etc/apt/apt.conf.d/20auto-upgrades
 ```
-2. Don't wait for network on boot and disable auto sleep.
+4. Don't wait for network on boot and disable auto sleep.
 ```
 systemctl mask systemd-networkd-wait-online.service
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 sudo reboot now
 ```
-3. Update the OS before continuing.
+5. Update the OS before continuing.
 ```
 sudo apt update
 sudo apt upgrade
@@ -113,12 +100,58 @@ cd ./opencr_update
 ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
 ```
 
-### Switching Between Wirless Networks
-1. Check which networks are avialable (saved in your netplan)
+### Setting Up Remote SSH (over `utexas-iot`)
+1. Install network tools.
 ```
-sudo wpa_cli -i wlan0 list_networks
+sudo apt install network-manager
 ```
-2. Switch to a different network.
+2. Delete the Wi-Fi interface in the current netplan and give `nmcli` control. 
 ```
-sudo wpa_cli -i wlan0 select_network 0
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+2. Afterwards, it should look like this:
+```
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      optional: true
+      dhcp4: true
+      dhcp6: true
+```
+3. Reboot.
+4. Check the wlan0 MAC address using the command `ip a`.
+5. Go to networks.utexas.edu and register the Pi’s MAC address under “Wireless”.
+6. Register this network using `network-manager`.
+```
+sudo nmcli con add type wifi ifname wlan0 con-name utexas-iot ssid "utexas-iot"
+sudo nmcli con modify utexas-iot wifi-sec.key-mgmt wpa-psk
+sudo nmcli con modify utexas-iot wifi-sec.psk YOUR_PASSWORD
+sudo nmcli con modify utexas-iot ipv4.method auto
+```
+7. Connect to the network.
+```
+sudo nmcli con up utexas-iot ifname wlan0
+```
+8. Connect your laptop to `utexas` or `utexas-iot` Wi-Fi. Then SSH into the turtlebot.
+```
+ssh MACADDRESS.dynamic.utexas.edu
+```
+
+### Setting Up Static IP over ASG-Radio-1
+1. Use `nmcli` to create a static IP interface.
+```
+nmcli con add type wifi ifname wlan0 con-name ASG-Radio-1 ssid "ASG-Radio-1"
+nmcli con modify ASG-Radio-1 wifi-sec.key-mgmt wpa-psk
+nmcli con modify ASG-Radio-1 wifi-sec.psk YOUR_PASSWORD
+nmcli con modify ASG-Radio-1 ipv4.addresses 192.168.168.XX/24
+nmcli con modify ASG-Radio-1 ipv4.gateway 192.168.168.1
+nmcli con modify ASG-Radio-1 ipv4.dns "8.8.8.8 8.8.4.4"
+nmcli con modify ASG-Radio-1 ipv4.method manual
+```
+2. Connect to the network and check the IP.
+```
+nmcli con up ASG-Radio-1 ifname wlan0
+ip a
 ```

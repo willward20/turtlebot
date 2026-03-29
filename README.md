@@ -90,24 +90,21 @@ sudo udevadm trigger
 ```
 
 ## Final System Configuration
-1. Choose what LiDAR model you’re using, even if it’s not connected, or else bringup fails. 
-```
-echo export LDS_MODEL=LDS-01 >> ~/.bashrc
-```
-2. Set up the OpenCR board
+1. Set up the OpenCR board
 ```
 sudo dpkg --add-architecture armhf  
 sudo apt-get update  
 sudo apt-get install libc6:armhf
 ```
-3. Set environment variables for convenience.
+2. Set environment variables for convenience.
 ```
+echo export LDS_MODEL=LDS-01 >> ~/.bashrc
 echo export OPENCR_PORT=/dev/ttyACM0 >> ~/.bashrc  
 echo export OPENCR_MODEL=burger >> ~/.bashrc
 echo export TURTLEBOT3_MODEL=burger >> ~/.bashrc
 source ~/.bashrc
 ```
-4. Remove old update and download new. Install.
+3. Remove old update and download new. Install.
 ```
 rm -rf ./opencr_update.tar.bz2
 wget https://github.com/ROBOTIS-GIT/OpenCR-Binaries/raw/master/turtlebot3/ROS2/latest/opencr_update.tar.bz2   

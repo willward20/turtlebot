@@ -142,16 +142,16 @@ ssh MACADDRESS.dynamic.utexas.edu
 ### Setting Up Static IP over ASG-Radio-1
 1. Use `nmcli` to create a static IP interface.
 ```
-nmcli con add type wifi ifname wlan0 con-name ASG-Radio-1 ssid "ASG-Radio-1"
-nmcli con modify ASG-Radio-1 wifi-sec.key-mgmt wpa-psk
-nmcli con modify ASG-Radio-1 wifi-sec.psk YOUR_PASSWORD
-nmcli con modify ASG-Radio-1 ipv4.addresses 192.168.168.XX/24
-nmcli con modify ASG-Radio-1 ipv4.gateway 192.168.168.1
-nmcli con modify ASG-Radio-1 ipv4.dns "8.8.8.8 8.8.4.4"
-nmcli con modify ASG-Radio-1 ipv4.method manual
+sudo nmcli con add type wifi ifname wlan0 con-name ASG-Radio-1 ssid "ASG-Radio-1"
+sudo nmcli con modify ASG-Radio-1 wifi-sec.key-mgmt wpa-psk
+sudo nmcli con modify ASG-Radio-1 wifi-sec.psk YOUR_PASSWORD
+sudo nmcli con modify ASG-Radio-1 ipv4.addresses 192.168.168.XX/24
+sudo nmcli con modify ASG-Radio-1 ipv4.gateway 192.168.168.1
+sudo nmcli con modify ASG-Radio-1 ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli con modify ASG-Radio-1 ipv4.method manual
 ```
 2. Connect to the network and check the IP.
 ```
-nmcli con up ASG-Radio-1 ifname wlan0
+sudo nmcli con up ASG-Radio-1 ifname wlan0
 ip a
 ```

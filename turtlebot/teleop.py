@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import TwistStamped
 import sys, termios, tty, select
 
 # Max velocities
@@ -22,7 +22,7 @@ move_bindings = {
 class KeyboardTeleopMax(Node):
     def __init__(self):
         super().__init__('keyboard_teleop_max')
-        self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
         self.get_logger().info(
             "Keyboard teleop started. WASD + QE for diagonal. Space to stop."
         )
@@ -44,9 +44,10 @@ class KeyboardTeleopMax(Node):
                 key = self.get_key()
                 if key in move_bindings:
                     linear_x, angular_z = move_bindings[key]
-                    twist = Twist()
-                    twist.linear.x = linear_x
-                    twist.angular.z = angular_z
+                    twist = TwistStamped()
+                    twist.header.stamp = self.get_clock().now().to_msg()
+                    twist.twist.linear.x = linear_x
+                    twist.twist.angular.z = angular_z
                     self.pub.publish(twist)
                     print(f"Published: linear.x={linear_x}, angular.z={angular_z}")
                 elif key == '\x03':  # Ctrl-C
